@@ -47,18 +47,20 @@ class GeneralTrade {
 
       let return_price;
       if (total_entry_price > total_exit_price) {
-        return_price = total_exit_price - total_entry_price - total_fee;
+        return_price = total_exit_price - total_entry_price + total_fee;
       } else {
-        return_price = total_entry_price - total_exit_price + total_fee;
+        return_price = total_exit_price - total_entry_price - total_fee;
       }
 
       const total_return_percentage = (return_price / total_entry_price) * 100;
 
       let status;
-      if (return_price <= 0) {
-        status = "loss";
+      if ((return_price = 0)) {
+        status = "OPEN";
+      } else if (return_price < 0) {
+        status = "LOSS";
       } else {
-        status = "won";
+        status = "WIN";
       }
 
       const newTrade = await models.general_trades.create({
@@ -99,7 +101,7 @@ class GeneralTrade {
 
   async get_all_trades(req, res) {
     try {
-      const { id } = req.params;
+      const id = req.user.id;
       if (!id) {
         throw new Error("Invalid id");
       }
@@ -108,16 +110,6 @@ class GeneralTrade {
           user_id: id,
         },
         attributes: {
-          include: [
-            [
-              models.sequelize.fn("sum", models.sequelize.col("fee")),
-              "totalAssetAmount",
-            ],
-            [
-              models.sequelize.fn("AVG", models.sequelize.col("fee")),
-              "avgRating",
-            ],
-          ],
           exclude: [
             "id",
             "user_id",
@@ -133,9 +125,49 @@ class GeneralTrade {
       res.json({
         status: 200,
         data: trades,
+        message: "Trades fetched successfully",
       });
     } catch (error) {
-      console.log(error);
+      res.status(500).json({
+        status: 500,
+        message:
+          typeof error === "string"
+            ? error
+            : typeof error.message === "string"
+            ? error.message
+            : "Something went wrong",
+      });
+    }
+  }
+
+  async get_trade_avgs(req, res) {
+    try {
+      const id = req.user.id;
+      if (!id) {
+        throw new Error("Invalid id");
+      }
+      const trades = await models.general_trades.findAll({
+        where: {
+          user_id: id,
+        },
+        attributes: [
+          [
+            models.sequelize.fn(
+              "ROUND",
+              models.sequelize.fn("AVG", models.sequelize.col("return_price")),
+              2
+            ),
+            "total_avg",
+          ],
+        ],
+        order: [["createdAt", "Desc"]],
+      });
+      res.json({
+        status: 200,
+        data: trades,
+        message: "Trades fetched successfully",
+      });
+    } catch (error) {
       res.status(500).json({
         status: 500,
         message:

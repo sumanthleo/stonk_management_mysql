@@ -67,6 +67,22 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      fee: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+      },
+      return_percentage: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+      },
+      position: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      status: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       is_active: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,

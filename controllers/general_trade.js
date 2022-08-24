@@ -15,7 +15,6 @@ class GeneralTrade {
       }
 
       const user = await models.users.findOne({ where: { id: user_id } });
-
       if (!user) {
         throw new Error("user not found");
       }
@@ -36,16 +35,30 @@ class GeneralTrade {
         .filter((item) => item.action === "SELL")
         .reduce((sum, item) => sum + item.quantity, 0);
 
+      let total_fee = trade_items
+        .map((item) => item)
+        .reduce((sum, item) => sum + item.fee, 0);
+
       const buy_total = buy_price / buy_quantity;
       const sell_total = sell_price / sell_quantity;
       const total_entry_price = buy_total * buy_quantity;
       const total_exit_price = sell_total * sell_quantity;
+      const balance_quantity = buy_quantity - sell_quantity;
 
       let return_price;
-      if (total_entry_price < total_exit_price) {
-        return_price = total_exit_price - total_entry_price;
+      if (total_entry_price > total_exit_price) {
+        return_price = total_exit_price - total_entry_price - total_fee;
       } else {
-        return_price = total_exit_price - total_entry_price;
+        return_price = total_entry_price - total_exit_price + total_fee;
+      }
+
+      const total_return_percentage = (return_price / total_entry_price) * 100;
+
+      let status;
+      if (return_price <= 0) {
+        status = "loss";
+      } else {
+        status = "won";
       }
 
       const newTrade = await models.general_trades.create({
@@ -54,13 +67,17 @@ class GeneralTrade {
         symbol,
         trade_type,
         trade_items: trade_items,
-        entry_price: buy_total,
-        exit_price: sell_total,
+        entry_price: buy_total.toFixed(2),
+        exit_price: sell_total.toFixed(2),
         total_entry_price: total_entry_price,
         total_exit_price: total_exit_price,
         return_price: return_price,
         buy_quantity: buy_quantity,
         sell_quantity: sell_quantity,
+        fee: total_fee,
+        return_percentage: total_return_percentage.toFixed(3),
+        position: balance_quantity,
+        status: status,
       });
       res.json({
         status: 200,
@@ -91,6 +108,16 @@ class GeneralTrade {
           user_id: id,
         },
         attributes: {
+          include: [
+            [
+              models.sequelize.fn("sum", models.sequelize.col("fee")),
+              "totalAssetAmount",
+            ],
+            [
+              models.sequelize.fn("AVG", models.sequelize.col("fee")),
+              "avgRating",
+            ],
+          ],
           exclude: [
             "id",
             "user_id",

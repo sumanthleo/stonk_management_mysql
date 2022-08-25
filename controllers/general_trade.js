@@ -187,7 +187,11 @@ class GeneralTrade {
    * @apiParam {String} calculating the win and loss avgs
    *
    * @apiSuccessExample {json} Success-Response:
-   * {}
+   * {      "status": "WIN",
+            "return_price": 1055,
+            "total_avg": 1055,
+            "count": 2
+      }
    */
 
   async get_trade_avgs(req, res) {
@@ -213,6 +217,7 @@ class GeneralTrade {
           ],
         ],
         group: ["status"],
+        raw: true,
         order: [["createdAt", "Desc"]],
       });
       res.json({

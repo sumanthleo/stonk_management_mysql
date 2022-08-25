@@ -2,6 +2,19 @@ const { sequelize } = require("../models");
 const models = require("../models");
 
 class WalletController {
+  /**
+   * @api {put} /v1/auth/wallet_update
+   * @apiName update user wallet
+   * @apiParam {String} updating user wallet
+   * @apiParam {String} update user wallet with id
+   * @apiParam {String} update user wallet
+   * @apiSuccessExample {json} Success-Response:
+   * {
+   *   "user_wallet_balance": 2300,
+   *   "message": "wallet updated Created successfully"
+   * }
+   */
+
   async updateWallet(req, res) {
     let t = await sequelize.transaction();
     try {
@@ -55,7 +68,19 @@ class WalletController {
     }
   }
 
-  
+  /**
+   * @api {put} /v1/auth/wallet_balance/9acdc628-719b-49d7-880f-17ddca69f4c4
+   * @apiName get user wallet balance with id
+   * @apiParam {String} get user wallet balance
+   * @apiParam {String}  user wallet with id
+   * @apiParam {String}  user wallet balance
+   * @apiSuccessExample {json} Success-Response:
+   * {
+   *   "user_wallet_balance": 2300,
+   *   "message": "User balance fetched successfully"
+   * }
+   */
+
   async getWalletBalance(req, res) {
     try {
       const { id } = req.params;

@@ -3,6 +3,18 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 class User {
+  /**
+   * @api {put} /v1/auth/signup
+   * @apiName user signup
+   * @apiParam {String} signup with user name and email address and password
+   * @apiParam {String}  encrypt passowrd with bcrypt package
+   * @apiParam {String}  signup
+   * @apiSuccessExample {json} Success-Response:
+   * {
+   *   "message": "Signup Success",
+   * }
+   */
+
   async signup(req, res) {
     try {
       if (!req.body.user_name || !req.body.email || !req.body.password) {
@@ -44,6 +56,28 @@ class User {
     }
   }
 
+  /**
+   * @api {put} /v1/auth/singin
+   * @apiName user signin
+   * @apiParam {String} signin with email  address and password
+   * @apiParam {String}  compare encrypt passowrd with user password
+   * @apiParam {String}  signin
+   * @apiSuccessExample {json} Success-Response:
+   * {
+   *    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjlhY2RjNjI4LTcxOWItNDlkNy04ODBmLTE3ZGRjYTY5ZjRjNCIsImlhdCI6MTY2MTM0MDAzMn0.jDCPEUlYYLbEQCml5XPptm28_L2ZPrPwAk1sIvwgf4Q",
+        "user": {
+            "id": "9acdc628-719b-49d7-880f-17ddca69f4c4",
+            "user_name": "someThing",
+            "email": "something@gmail.com",
+            "password": "$2b$10$CkBiAEjjb/1GxsVDrvDGVu.84Mpw3t/VvCEyeVpRZv80fshdZK0b6",
+            "phone": null,
+            "age": null,
+            "profile_image": null,
+            "profile_image_url": null,
+            "country": null,
+            "user_wallet_balance": 2300,
+   * }
+   */
   async signin(req, res) {
     try {
       const { email, password } = req.body;
@@ -79,6 +113,18 @@ class User {
       });
     }
   }
+
+  /**
+   * @api {put} /v1/auth/user_update/9acdc628-719b-49d7-880f-17ddca69f4c4
+   * @apiName user update
+   * @apiParam {String} user_update with user name and email address and password
+   * @apiParam {String}  encrypt passowrd with bcrypt package
+   * @apiParam {String}  user_update
+   * @apiSuccessExample {json} Success-Response:
+   * {
+   *   "message": "update_user Success",
+   * }
+   */
 
   async update_user(req, res) {
     try {

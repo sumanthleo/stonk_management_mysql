@@ -1,6 +1,18 @@
 const models = require("../models");
 
 class GeneralTrade {
+  /**
+   * @api {put} /v1/auth/create_trade
+   * @apiName crate trade
+   *
+   * @apiParam {String} crating a trade with total_entry_price and total_exit_price
+   * @apiParam {String} status is win or loss
+   * @apiParam {String} added buy_quantity and sell_quantity
+   *
+   * @apiSuccessExample {json} Success-Response:
+   * {}
+   */
+
   async createTrade(req, res) {
     try {
       const { user_id, market, symbol, trade_type, trade_items } = req.body;
@@ -55,7 +67,7 @@ class GeneralTrade {
       const total_return_percentage = (return_price / total_entry_price) * 100;
 
       let status;
-      if ((return_price = 0)) {
+      if (return_price === 0) {
         status = "OPEN";
       } else if (return_price < 0) {
         status = "LOSS";
@@ -99,6 +111,32 @@ class GeneralTrade {
     }
   }
 
+  /**
+   * @api {put} /v1/auth/get_trades
+   * @apiName get all the trades
+   *
+   * @apiParam {String} getting all the tardes with their properties
+   * @apiParam {String} status is win or loss
+   * @apiParam {String} added buy_quantity and sell_quantity
+   * 
+   * @apiSuccessExample {json} Success-Response:
+   * {{
+            "market": "STOCK",
+            "symbol": "POWER",
+            "trade_type": "LONG",
+            "entry_price": 1000,
+            "exit_price": 1100,
+            "total_entry_price": 11000,
+            "total_exit_price": 12100,
+            "return_price": 1055,
+            "buy_quantity": 11,
+            "sell_quantity": 11,
+            "fee": 45,
+            "return_percentage": 9.591,
+            "position": 0,
+            "status": "won"
+        },}
+   */
   async get_all_trades(req, res) {
     try {
       const id = req.user.id;
@@ -140,6 +178,18 @@ class GeneralTrade {
     }
   }
 
+  /**
+   * @api {put} /v1/auth/get_avg_trades
+   * @apiName get all the trades avg_wins
+   *
+   * @apiParam {String} getting all the tardes with their win and losses properties
+   * @apiParam {String} status is win or loss
+   * @apiParam {String} calculating the win and loss avgs
+   *
+   * @apiSuccessExample {json} Success-Response:
+   * {}
+   */
+
   async get_trade_avgs(req, res) {
     try {
       const id = req.user.id;
@@ -151,15 +201,18 @@ class GeneralTrade {
           user_id: id,
         },
         attributes: [
+          "status",
+          "return_price",
           [
-            models.sequelize.fn(
-              "ROUND",
-              models.sequelize.fn("AVG", models.sequelize.col("return_price")),
-              2
-            ),
+            models.sequelize.fn("AVG", models.sequelize.col("return_price")),
             "total_avg",
           ],
+          [
+            models.sequelize.fn("COUNT", models.sequelize.col("status")),
+            "count",
+          ],
         ],
+        group: ["status"],
         order: [["createdAt", "Desc"]],
       });
       res.json({

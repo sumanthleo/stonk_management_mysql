@@ -122,7 +122,7 @@ class GeneralTrade {
   async update_trade(req, res) {
     try {
       const { id } = req.params;
-      const { user_id, market, symbol, trade_type, trade_items } = req.body;
+      const { market, symbol, trade_type, trade_items } = req.body;
       if (
         !id ||
         !market ||
@@ -179,7 +179,6 @@ class GeneralTrade {
 
       const updated_trades = await models.general_trades.update(
         {
-          user_id,
           market,
           symbol,
           trade_type,
@@ -204,7 +203,7 @@ class GeneralTrade {
       );
       res.json({
         status: 200,
-        data: newTrade,
+        data: updated_trades,
         message: "Trade updated successfully",
       });
     } catch (error) {

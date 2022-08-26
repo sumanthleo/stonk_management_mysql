@@ -63,6 +63,7 @@ class User_note {
       });
     }
   }
+  
   /**
    * @api {put} /v1/auth/get_notes
    * @apiName get  user_note

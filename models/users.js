@@ -104,10 +104,6 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "user_id",
       as: "helps",
     });
-    users.hasOne(models.stats, {
-      foreignKey: "user_id",
-      as: "stats",
-    });
 
     // users
     //   .sync({ alter: true })
